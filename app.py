@@ -3,17 +3,10 @@ from flask import Flask, render_template, request
 import psycopg2
 from psycopg2.extras import RealDictCursor
 
+
 app = Flask(__name__)
 
-database_url = os.environ.get('DATABASE_URL')
-
-def get_db_connection():
-    try:
-        connection = psycopg2.connect(database_url)
-        return connection
-    except Exception as e:
-        print(f"Error connecting to database: {e}")
-        return None
+db_config = os.environ.get('DATABASE_URL')
 
 available_locales = [
     ('pl_PL', 'Polski (Polska)'),
@@ -22,6 +15,13 @@ available_locales = [
     ('fr_FR', 'Français (France)'),
     ('it_IT', 'Italiano (Italia)')
 ]
+def get_db_connection():
+    try:
+        connection = psycopg2.connect(db_config)
+        return connection
+    except Exception as e:
+        print(f"Error connecting to database: {e}")
+        return None
 
 @app.route('/')
 def index():
@@ -37,15 +37,7 @@ def index():
     if batch_id < 1:
         batch_id = 1
 
-    try:
-        user_count = int(request.args.get('count', 20))
-    except ValueError:
-        user_count = 10
-    if user_count < 1:
-        user_count = 1
-    if user_count > 1000:
-        user_count = 1000
-
+    user_count = 20
     users = []
     error = None
 
